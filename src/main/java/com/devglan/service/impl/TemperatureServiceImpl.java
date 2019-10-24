@@ -5,12 +5,17 @@ import com.devglan.dao.TemperatureDao;
 import com.devglan.model.Temperature;
 import com.devglan.model.TemperatureDto;
 import com.devglan.service.TemperatureService;
+import com.pi4j.component.temperature.TemperatureSensor;
+import com.pi4j.component.temperature.impl.TmpDS18B20DeviceType;
+import com.pi4j.io.w1.W1Device;
+import com.pi4j.io.w1.W1Master;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +28,21 @@ public class TemperatureServiceImpl implements TemperatureService {
 	private TemperatureDao temperatureDao;
 
 	public List<Temperature> findAll() {
+		W1Master master = new W1Master();
+		List<W1Device> w1Devices = master.getDevices(TmpDS18B20DeviceType.FAMILY_CODE);
+		for (W1Device device : w1Devices) {
+			//this line is enought if you want to read the temperature
+			System.out.println("Temperature: " + ((TemperatureSensor) device).getTemperature());
+			//returns the temperature as double rounded to one decimal place after the point
+
+			try {
+				System.out.println("1-Wire ID: " + device.getId() +  " value: " + device.getValue());
+				//returns the ID of the Sensor and the  full text of the virtual file
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		List<Temperature> list = new ArrayList<>();
 		temperatureDao.findAll().iterator().forEachRemaining(list::add);
 		return list;
