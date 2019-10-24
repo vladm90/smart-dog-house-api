@@ -3,13 +3,17 @@ package com.devglan.service.impl;
 import com.devglan.dao.TemperatureDao;
 
 import com.devglan.model.Temperature;
+import com.devglan.model.TemperatureDto;
 import com.devglan.service.TemperatureService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service(value = "temperatureService")
@@ -22,6 +26,17 @@ public class TemperatureServiceImpl implements TemperatureService {
 		List<Temperature> list = new ArrayList<>();
 		temperatureDao.findAll().iterator().forEachRemaining(list::add);
 		return list;
+
+
+		/*List<Temperature> historyChanges = temperatureDao.findAll();
+
+		return historyChanges.stream().map(historyChange -> conversionService.convert(historyChange, HistoryResponseDto.class)).collect(Collectors.toList());*/
+	}
+
+
+	public void scheduleTaskSaveTemperatures() {
+		long now = System.currentTimeMillis() / 1000;
+		System.out.println("schedule tasks using cron jobs - " + now);
 	}
 /*
 	@Override

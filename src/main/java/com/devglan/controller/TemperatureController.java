@@ -3,6 +3,7 @@ package com.devglan.controller;
 
 import com.devglan.model.ApiResponse;
 import com.devglan.model.Temperature;
+import com.devglan.model.TemperatureDto;
 import com.devglan.service.TemperatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,7 +47,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/temperature")
+@RequestMapping("/api")
 public class TemperatureController {
 
     @Autowired
@@ -57,8 +58,8 @@ public class TemperatureController {
         return new ApiResponse<>(HttpStatus.OK.value(), "User saved successfully.",temperatureService.save(user));
     }*/
 
-    @GetMapping
-    public ApiResponse<List<Temperature>> listUser() throws InterruptedException {
+    @GetMapping("/test")
+    public ApiResponse<List<Temperature>> test() throws InterruptedException {
         System.out.println("<--Pi4J--> GPIO Control Example ... started.");
 
         // create gpio controller
@@ -104,6 +105,12 @@ public class TemperatureController {
         //  return new ApiResponse<>(HttpStatus.OK.value(), "User list fetched successfully.",temperatureService.findAll());
        return null;
     }
+
+   /* @GetMapping("/temperatures")
+    public ApiResponse<List<Temperature>> getAllTemperatures(){
+         return new ApiResponse<>(HttpStatus.OK.value(), "Temperatures list fetched successfully.", temperatureService.findAll());
+
+    }*/
 /*
     @GetMapping("/{id}")
     public ApiResponse<User> getOne(@PathVariable int id){

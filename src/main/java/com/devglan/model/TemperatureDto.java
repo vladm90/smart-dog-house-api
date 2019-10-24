@@ -1,68 +1,22 @@
 package com.devglan.model;
 
-public class TemperatureDto {
+import lombok.*;
+import java.io.Serializable;
+import java.util.Date;
 
-    private int id;
-    private String firstName;
-    private String lastName;
-    private String username;
-    private String password;
-    private int age;
-    private long salary;
 
-    public int getId() {
-        return id;
-    }
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TemperatureDto implements Serializable {
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    private Long id;
+    private Date date;
+    private Double outside;
+    private Double insideHappy;
+    private Double insideSnoopy;
+    private Boolean openHappy;
+    private Boolean openSnoopy;
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public long getSalary() {
-        return salary;
-    }
-
-    public void setSalary(long salary) {
-        this.salary = salary;
-    }
 }
