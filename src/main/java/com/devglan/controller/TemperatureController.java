@@ -5,6 +5,10 @@ import com.devglan.model.ApiResponse;
 import com.devglan.model.Temperature;
 import com.devglan.model.TemperatureDto;
 import com.devglan.service.TemperatureService;
+import com.pi4j.component.temperature.TemperatureSensor;
+import com.pi4j.component.temperature.impl.TmpDS18B20DeviceType;
+import com.pi4j.io.w1.W1Device;
+import com.pi4j.io.w1.W1Master;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +47,7 @@ import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -60,13 +65,27 @@ public class TemperatureController {
 
     @GetMapping("/test")
     public ApiResponse<List<Temperature>> test() throws InterruptedException {
-        System.out.println("<--Pi4J--> GPIO Control Example ... started.");
+        W1Master master = new W1Master();
+        List<W1Device> w1Devices = master.getDevices(TmpDS18B20DeviceType.FAMILY_CODE);
+        for (W1Device device : w1Devices) {
+            //this line is enought if you want to read the temperature
+            System.out.println("Temperature: " + ((TemperatureSensor) device).getTemperature());
+            //returns the temperature as double rounded to one decimal place after the point
+
+            try {
+                System.out.println("1-Wire ID: " + device.getId() +  " value: " + device.getValue());
+                //returns the ID of the Sensor and the  full text of the virtual file
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+       /* System.out.println("<--Pi4J--> GPIO Control Example ... started.");
 
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
 
         // provision gpio pin #01 as an output pin and turn on
-        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_03, "MyLED", PinState.HIGH);
+        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_24, "MyLED", PinState.HIGH);
 
         // set shutdown state for this pin
         pin.setShutdownOptions(true, PinState.LOW);
@@ -101,16 +120,16 @@ public class TemperatureController {
         // (this method will forcefully shutdown all GPIO monitoring threads and scheduled tasks)
         gpio.shutdown();
 
-        System.out.println("Exiting ControlGpioExample");
+        System.out.println("Exiting ControlGpioExample");*/
         //  return new ApiResponse<>(HttpStatus.OK.value(), "User list fetched successfully.",temperatureService.findAll());
        return null;
     }
 
-   /* @GetMapping("/temperatures")
+    @GetMapping("/temperatures")
     public ApiResponse<List<Temperature>> getAllTemperatures(){
          return new ApiResponse<>(HttpStatus.OK.value(), "Temperatures list fetched successfully.", temperatureService.findAll());
 
-    }*/
+    }
 /*
     @GetMapping("/{id}")
     public ApiResponse<User> getOne(@PathVariable int id){

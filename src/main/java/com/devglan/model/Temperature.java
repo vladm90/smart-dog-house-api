@@ -18,7 +18,7 @@ import static java.util.Objects.isNull;
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 @Entity
-@Table(name = "TEMPERATURE")
+@Table(name = "TEMPERATURES")
 @DynamicInsert
 public class Temperature implements Serializable, Persistable<Long> {
 
