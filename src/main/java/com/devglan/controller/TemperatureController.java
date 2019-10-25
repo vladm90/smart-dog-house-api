@@ -79,7 +79,7 @@ public class TemperatureController {
                 e.printStackTrace();
             }
         }
-       /* System.out.println("<--Pi4J--> GPIO Control Example ... started.");
+        System.out.println("<--Pi4J--> GPIO Control Example ... started.");
 
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
@@ -120,7 +120,7 @@ public class TemperatureController {
         // (this method will forcefully shutdown all GPIO monitoring threads and scheduled tasks)
         gpio.shutdown();
 
-        System.out.println("Exiting ControlGpioExample");*/
+        System.out.println("Exiting ControlGpioExample");
         //  return new ApiResponse<>(HttpStatus.OK.value(), "User list fetched successfully.",temperatureService.findAll());
        return null;
     }
