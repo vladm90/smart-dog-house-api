@@ -126,7 +126,7 @@ public class TemperatureController {
     }
 
     @GetMapping("/temperatures")
-    public ApiResponse<List<Temperature>> getAllTemperatures(){
+    public ApiResponse<List<Temperature>> getAllTemperatures() throws InterruptedException {
          return new ApiResponse<>(HttpStatus.OK.value(), "Temperatures list fetched successfully.", temperatureService.findAll());
 
     }

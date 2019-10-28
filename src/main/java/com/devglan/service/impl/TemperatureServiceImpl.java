@@ -28,22 +28,23 @@ public class TemperatureServiceImpl implements TemperatureService {
 	@Autowired
 	private TemperatureDao temperatureDao;
 
-	public List<Temperature> findAll() {
-		W1Master master = new W1Master();
+	public List<Temperature> findAll() throws InterruptedException {
+		/*W1Master master = new W1Master();
 		for(TemperatureSensor device : master.getDevices(TemperatureSensor.class)){
 			System.out.println("Temperature: " + ((TemperatureSensor) device).getTemperature());
 		}
 		 System.out.println("<--Pi4J--> GPIO Control Example ... started.");
-
+*/
 		GpioUtil.enableNonPrivilegedAccess();
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
 
         // provision gpio pin #01 as an output pin and turn on
-        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_17);
-pin.setState(true);
-       pin.low();
-       pin.high();
+        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
+		//raspberry ppin.setShutdownOptions(true, PinState.LOW);
+		pin.high();
+		Thread.sleep(1000);
+		pin.low();
 		/*for (W1Device device : w1Devices) {
 			//this line is enought if you want to read the temperature
 			System.out.println("Temperature: " + ((TemperatureSensor) device).getTemperature());
@@ -57,6 +58,8 @@ pin.setState(true);
 			}
 		}*/
 
+		gpio.shutdown();
+		gpio.unprovisionPin(pin);
 		List<Temperature> list = new ArrayList<>();
 		temperatureDao.findAll().iterator().forEachRemaining(list::add);
 		return list;

@@ -6,7 +6,7 @@ import com.devglan.model.TemperatureDto;
 import java.util.List;
 
 public interface TemperatureService {
-    List<Temperature> findAll();
+    List<Temperature> findAll() throws InterruptedException;
     void scheduleTaskSaveTemperatures();
    /* User save(TemperatureDto user);
 
