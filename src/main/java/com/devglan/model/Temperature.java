@@ -49,6 +49,8 @@ public class Temperature implements Serializable, Persistable<Long> {
     @Column(name = "T_IS_OPEN_SNOOPY")
     private Boolean openSnoopy;
 
+
+
     @Override
     public boolean isNew() {
         return isNull(id);

@@ -29,12 +29,20 @@ public class TemperatureServiceImpl implements TemperatureService {
 	private TemperatureDao temperatureDao;
 
 	public List<Temperature> findAll() throws InterruptedException {
-		/*W1Master master = new W1Master();
+		W1Master master = new W1Master();
 		for(TemperatureSensor device : master.getDevices(TemperatureSensor.class)){
-			System.out.println("Temperature: " + ((TemperatureSensor) device).getTemperature());
+			if(device.getName().equals("28-0416a17be5ff")){ //3m
+
+			}
+			if(device.getName().equals("28-0516a1a5b9ff")){ //2m
+
+			}
+			if(device.getName().equals("28-0416a15904ff")){ //1m
+
+			}
+			System.out.println("Temperature: " + ((TemperatureSensor) device).getTemperature()+ "NAME:"+ device.getName());
 		}
 		 System.out.println("<--Pi4J--> GPIO Control Example ... started.");
-*/
 		GpioUtil.enableNonPrivilegedAccess();
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
@@ -70,10 +78,26 @@ public class TemperatureServiceImpl implements TemperatureService {
 		return historyChanges.stream().map(historyChange -> conversionService.convert(historyChange, HistoryResponseDto.class)).collect(Collectors.toList());*/
 	}
 
-
+@Override
 	public void scheduleTaskSaveTemperatures() {
-		long now = System.currentTimeMillis() / 1000;
-		System.out.println("schedule tasks using cron jobs - " + now);
+		Temperature temperature = new Temperature();
+		W1Master master = new W1Master();
+		for(TemperatureSensor device : master.getDevices(TemperatureSensor.class)){
+			if(device.getName().equals("28-0416a17be5ff")){ //3m
+				temperature.setInsideSnoopy(device.getTemperature());
+			}
+			if(device.getName().equals("28-0516a1a5b9ff")){ //2m
+				temperature.setInsideHappy(device.getTemperature());
+			}
+			if(device.getName().equals("28-0416a15904ff")){ //1m
+				temperature.setOutside(device.getTemperature());
+			}
+
+		}
+		temperature.setOpenHappy(false);
+		temperature.setOpenSnoopy(false);
+		temperatureDao.save(temperature);
+		System.out.println("schedule tasks using cron jobs - ") ;
 	}
 /*
 	@Override
