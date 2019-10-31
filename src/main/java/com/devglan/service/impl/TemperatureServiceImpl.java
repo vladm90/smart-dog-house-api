@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,9 +29,55 @@ public class TemperatureServiceImpl implements TemperatureService {
 	
 	@Autowired
 	private TemperatureDao temperatureDao;
+public void openRelay() {
+    System.out.println("<--Pi4J--> GPIO Control Example ... started.ON");
+    GpioUtil.enableNonPrivilegedAccess();
+    // create gpio controller
+     GpioController gpio = GpioFactory.getInstance();
 
+    // provision gpio pin #01 as an output pin and turn on
+    GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01,"MyLED", PinState.HIGH);
+	pin.high();
+//	pin.setShutdownOptions(true, PinState.LOW);
+    //raspberry ppin.setShutdownOptions(true, PinState.LOW);
+   //pin.low();
+  /*  try {
+        Thread.sleep(5000);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+    pin.high();
+    gpio.shutdown();*/
+    gpio.shutdown();
+	gpio.unprovisionPin(pin);
+	System.out.println("<--Pi4J--> GPIO Control Example ... started.ON END");
+}
+
+    public void closeRelay() {
+        System.out.println("<--Pi4J--> GPIO Control Example ... started.OFF" );
+        GpioUtil.enableNonPrivilegedAccess();
+        // create gpio controller
+         GpioController gpio = GpioFactory.getInstance();
+
+        // provision gpio pin #01 as an output pin and turn on
+         GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01,"MyLED9", PinState.LOW);
+		pin.low();
+//		pin.setShutdownOptions(true, PinState.HIGH);
+        //raspberry ppin.setShutdownOptions(true, PinState.LOW);
+       // pin.high();
+        /*try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        pin.low();
+        gpio.shutdown();*/
+        gpio.shutdown();
+		gpio.unprovisionPin(pin);
+		System.out.println("<--Pi4J--> GPIO Control Example ... started.OFF END" );
+    }
 	public List<Temperature> findAll() throws InterruptedException {
-		W1Master master = new W1Master();
+		/*W1Master master = new W1Master();
 		for(TemperatureSensor device : master.getDevices(TemperatureSensor.class)){
 			if(device.getName().equals("28-0416a17be5ff")){ //3m
 
@@ -41,8 +89,8 @@ public class TemperatureServiceImpl implements TemperatureService {
 
 			}
 			System.out.println("Temperature: " + ((TemperatureSensor) device).getTemperature()+ "NAME:"+ device.getName());
-		}
-		 System.out.println("<--Pi4J--> GPIO Control Example ... started.");
+		}*/
+		/* System.out.println("<--Pi4J--> GPIO Control Example ... started.");
 		GpioUtil.enableNonPrivilegedAccess();
         // create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
@@ -50,9 +98,9 @@ public class TemperatureServiceImpl implements TemperatureService {
         // provision gpio pin #01 as an output pin and turn on
         final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
 		//raspberry ppin.setShutdownOptions(true, PinState.LOW);
-		pin.high();
-		Thread.sleep(1000);
 		pin.low();
+		Thread.sleep(5000);
+		pin.high();*/
 		/*for (W1Device device : w1Devices) {
 			//this line is enought if you want to read the temperature
 			System.out.println("Temperature: " + ((TemperatureSensor) device).getTemperature());
@@ -66,10 +114,13 @@ public class TemperatureServiceImpl implements TemperatureService {
 			}
 		}*/
 
-		gpio.shutdown();
-		gpio.unprovisionPin(pin);
+		/*gpio.shutdown();
+		gpio.unprovisionPin(pin);*/
 		List<Temperature> list = new ArrayList<>();
 		temperatureDao.findAll().iterator().forEachRemaining(list::add);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+		//list.forEach(f -> f.setDate(simpleDateFormat.format(f.getDate())));
+        Collections.reverse(list);
 		return list;
 
 

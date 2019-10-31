@@ -8,6 +8,8 @@ import java.util.List;
 public interface TemperatureService {
     List<Temperature> findAll() throws InterruptedException;
     void scheduleTaskSaveTemperatures();
+    void openRelay();
+    void closeRelay();
    /* User save(TemperatureDto user);
 
     void delete(int id);
