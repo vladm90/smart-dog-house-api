@@ -1,6 +1,6 @@
-package com.devglan.config;
+package com.smartdoghouse.config;
 
-import com.devglan.model.ApiResponse;
+import com.smartdoghouse.model.ApiResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

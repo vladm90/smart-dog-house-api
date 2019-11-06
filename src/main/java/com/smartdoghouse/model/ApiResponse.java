@@ -1,4 +1,4 @@
-package com.devglan.model;
+package com.smartdoghouse.model;
 
 public class ApiResponse<T> {
 

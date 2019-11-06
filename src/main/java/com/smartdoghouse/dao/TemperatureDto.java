@@ -1,4 +1,4 @@
-package com.devglan.model;
+package com.smartdoghouse.dao;
 
 import lombok.*;
 import java.io.Serializable;

@@ -1,15 +1,15 @@
-package com.devglan.task;
+package com.smartdoghouse.task;
 
-import java.io.IOException;
 
-import com.devglan.service.TemperatureService;
+import com.smartdoghouse.service.TemperatureService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 
-
+@Slf4j
 @Component
 @EnableScheduling
 public class TemperaturesWorker{
@@ -17,9 +17,9 @@ public class TemperaturesWorker{
     @Autowired
     TemperatureService temperatureService;
 
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "0 0/30 * * * *")
     public void saveTemperatures() {
-        System.out.println("######Cron Start ######");
+        log.info("######Cron Start ######");
         temperatureService.scheduleTaskSaveTemperatures();
     }
 }

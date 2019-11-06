@@ -1,6 +1,6 @@
-package com.devglan;
+package com.smartdoghouse;
 
-import com.devglan.dao.TemperatureDao;
+import com.smartdoghouse.repository.TemperatureDao;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,8 +22,8 @@ public class Application {
             user1.setLastName("Devglan");
             user1.setSalary(12345);
             user1.setAge(23);
-            user1.setUsername("devglan");
-            user1.setPassword("devglan");
+            user1.setUsername("smartdoghouse");
+            user1.setPassword("smartdoghouse");
             userDao.save(user1);
 
             User user2 = new User();

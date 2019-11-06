@@ -1,4 +1,4 @@
-package com.devglan.config;
+package com.smartdoghouse.config;
 
 import java.io.IOException;
 

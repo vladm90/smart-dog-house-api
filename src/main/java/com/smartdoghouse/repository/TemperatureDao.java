@@ -1,6 +1,6 @@
-package com.devglan.dao;
+package com.smartdoghouse.repository;
 
-import com.devglan.model.Temperature;
+import com.smartdoghouse.model.Temperature;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
