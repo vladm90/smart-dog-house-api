@@ -24,32 +24,37 @@ public class TemperatureService {
     @Autowired
     private TemperatureDao temperatureDao;
 
-    public void openRelay() {
-        System.out.println("<--Pi4J--> GPIO Control Example ... started.ON");
+    public void openRelay(Long relayId) {
         GpioUtil.enableNonPrivilegedAccess();
-        // create gpio controller
         GpioController gpio = GpioFactory.getInstance();
+        Pin raspiPin = null;
+        if(relayId == 1) {
+            raspiPin = RaspiPin.GPIO_01;
+        } else if (relayId == 2) {
+            raspiPin = RaspiPin.GPIO_01;
+        }
 
-        // provision gpio pin #01 as an output pin and turn on
-        GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01, "MyLED", PinState.HIGH);
+        GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(raspiPin, "Light", PinState.HIGH);
         pin.high();
         gpio.shutdown();
         gpio.unprovisionPin(pin);
-        System.out.println("<--Pi4J--> GPIO Control Example ... started.ON END");
+        log.info("Light was started for {}", relayId);
     }
 
-    public void closeRelay() {
-        System.out.println("<--Pi4J--> GPIO Control Example ... started.OFF");
+    public void closeRelay(Long relayId) {
         GpioUtil.enableNonPrivilegedAccess();
-        // create gpio controller
         GpioController gpio = GpioFactory.getInstance();
-
-        // provision gpio pin #01 as an output pin and turn on
-        GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01, "MyLED9", PinState.LOW);
+        Pin raspiPin = null;
+        if(relayId == 1) {
+            raspiPin = RaspiPin.GPIO_01;
+        } else if (relayId == 2) {
+            raspiPin = RaspiPin.GPIO_01;
+        }
+        GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(raspiPin, "Light", PinState.LOW);
         pin.low();
         gpio.shutdown();
         gpio.unprovisionPin(pin);
-        System.out.println("<--Pi4J--> GPIO OFF END");
+        log.info("Light was started for {}", relayId);
     }
 
     public List<Temperature> findAll() throws InterruptedException {

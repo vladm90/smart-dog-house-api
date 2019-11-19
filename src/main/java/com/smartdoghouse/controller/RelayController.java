@@ -2,10 +2,7 @@ package com.smartdoghouse.controller;
 
 import com.smartdoghouse.service.TemperatureService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -17,15 +14,15 @@ public class RelayController {
     private TemperatureService temperatureService;
 
 
-    @GetMapping("/on")
-    public void setOn() {
-         temperatureService.openRelay();
+    @GetMapping("{relayId}/on")
+    public void setOn(@PathVariable Long relayId) {
+         temperatureService.openRelay(relayId);
     }
 
 
-    @GetMapping("/off")
-    public void setOff() {
-        temperatureService.closeRelay();
+    @GetMapping("{relayId}/off")
+    public void setOff(@PathVariable Long relayId) {
+        temperatureService.closeRelay(relayId);
     }
 
 
