@@ -81,7 +81,7 @@ public class TemperatureService {
 
         List<Temperature> list = new ArrayList<>();
         List<TemperatureDto> list2 = new ArrayList<>();
-        temperatureDao.findAllByFilters(dateDto.getStartDate() , dateDto.getEndDate()).iterator().forEachRemaining(list::add);
+        temperatureDao.findAllByFilters(dateDto.getStartDate(), dateDto.getEndDate()).iterator().forEachRemaining(list::add);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm");
         list.forEach(f -> {
             list2.add( TemperatureDto.builder()
