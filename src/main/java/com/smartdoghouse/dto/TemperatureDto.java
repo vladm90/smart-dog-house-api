@@ -1,8 +1,7 @@
-package com.smartdoghouse.dao;
+package com.smartdoghouse.dto;
 
 import lombok.*;
 import java.io.Serializable;
-import java.util.Date;
 
 
 @Builder

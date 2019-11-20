@@ -1,6 +1,7 @@
 package com.smartdoghouse.service;
 
-import com.smartdoghouse.dao.TemperatureDto;
+import com.smartdoghouse.dto.DateDto;
+import com.smartdoghouse.dto.TemperatureDto;
 import com.smartdoghouse.repository.TemperatureDao;
 
 import com.smartdoghouse.model.Temperature;
@@ -63,6 +64,24 @@ public class TemperatureService {
         List<Temperature> list = new ArrayList<>();
         List<TemperatureDto> list2 = new ArrayList<>();
         temperatureDao.findAll().iterator().forEachRemaining(list::add);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm");
+        list.forEach(f -> {
+            list2.add( TemperatureDto.builder()
+                    .date(simpleDateFormat.format(f.getDate()))
+                    .insideHappy(f.getInsideHappy())
+                    .insideSnoopy(f.getInsideSnoopy())
+                    .outside(f.getOutside())
+                    .build());
+        });
+        Collections.reverse(list2);
+        return list2;
+    }
+
+    public List<TemperatureDto> getAllByFilters(DateDto dateDto) throws InterruptedException {
+
+        List<Temperature> list = new ArrayList<>();
+        List<TemperatureDto> list2 = new ArrayList<>();
+        temperatureDao.findAllByFilters(dateDto.getStartDate() , dateDto.getEndDate()).iterator().forEachRemaining(list::add);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm");
         list.forEach(f -> {
             list2.add( TemperatureDto.builder()
