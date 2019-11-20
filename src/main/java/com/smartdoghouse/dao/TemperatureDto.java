@@ -12,7 +12,7 @@ import java.util.Date;
 public class TemperatureDto implements Serializable {
 
     private Long id;
-    private Date date;
+    private String date;
     private Double outside;
     private Double insideHappy;
     private Double insideSnoopy;

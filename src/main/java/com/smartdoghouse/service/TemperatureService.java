@@ -1,5 +1,6 @@
 package com.smartdoghouse.service;
 
+import com.smartdoghouse.dao.TemperatureDto;
 import com.smartdoghouse.repository.TemperatureDao;
 
 import com.smartdoghouse.model.Temperature;
@@ -31,7 +32,7 @@ public class TemperatureService {
         if(relayId == 1) {
             raspiPin = RaspiPin.GPIO_01;
         } else if (relayId == 2) {
-            raspiPin = RaspiPin.GPIO_01;
+            raspiPin = RaspiPin.GPIO_04;
         }
 
         GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(raspiPin, "Light", PinState.HIGH);
@@ -48,23 +49,59 @@ public class TemperatureService {
         if(relayId == 1) {
             raspiPin = RaspiPin.GPIO_01;
         } else if (relayId == 2) {
-            raspiPin = RaspiPin.GPIO_01;
+            raspiPin = RaspiPin.GPIO_04;
         }
         GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(raspiPin, "Light", PinState.LOW);
         pin.low();
         gpio.shutdown();
         gpio.unprovisionPin(pin);
-        log.info("Light was started for {}", relayId);
+        log.info("Light was closed for {}", relayId);
     }
 
-    public List<Temperature> findAll() throws InterruptedException {
+    public List<TemperatureDto> findAll() throws InterruptedException {
 
         List<Temperature> list = new ArrayList<>();
+        List<TemperatureDto> list2 = new ArrayList<>();
         temperatureDao.findAll().iterator().forEachRemaining(list::add);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
-        //list.forEach(f -> f.setDate(simpleDateFormat.format(f.getDate())));
-        Collections.reverse(list);
-        return list;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm");
+        list.forEach(f -> {
+            list2.add( TemperatureDto.builder()
+                    .date(simpleDateFormat.format(f.getDate()))
+                    .insideHappy(f.getInsideHappy())
+                    .insideSnoopy(f.getInsideSnoopy())
+                    .outside(f.getOutside())
+                    .build());
+        });
+        Collections.reverse(list2);
+        return list2;
+    }
+
+    public TemperatureDto getStats() throws InterruptedException {
+        TemperatureDto temperature = new TemperatureDto();
+        GpioUtil.enableNonPrivilegedAccess();
+        GpioController gpio = GpioFactory.getInstance();
+        final GpioPinDigitalOutput myButton = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
+        final GpioPinDigitalOutput myButton2 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_04);
+        System.out.println("1"+myButton.getState());
+        System.out.println("2"+myButton2.getState());
+
+        W1Master master = new W1Master();
+        for (TemperatureSensor device : master.getDevices(TemperatureSensor.class)) {
+            if (device.getName().equals("28-0416a17be5ff")) { //3m
+                temperature.setInsideSnoopy(device.getTemperature());
+            }
+            if (device.getName().equals("28-0516a1a5b9ff")) { //2m
+                temperature.setInsideHappy(device.getTemperature());
+            }
+            if (device.getName().equals("28-0416a15904ff")) { //1m
+                temperature.setOutside(device.getTemperature());
+            }
+
+        }
+        gpio.shutdown();
+        gpio.unprovisionPin(myButton);
+        gpio.unprovisionPin(myButton2);
+        return temperature;
     }
 
 
