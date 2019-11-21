@@ -15,7 +15,7 @@ public class TemperatureDto implements Serializable {
     private Double outside;
     private Double insideHappy;
     private Double insideSnoopy;
-    private Boolean openHappy;
-    private Boolean openSnoopy;
+    private String openHappy;
+    private String openSnoopy;
 
 }

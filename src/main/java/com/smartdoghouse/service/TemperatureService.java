@@ -31,13 +31,13 @@ public class TemperatureService {
         GpioController gpio = GpioFactory.getInstance();
         Pin raspiPin = null;
         if(relayId == 1) {
-            raspiPin = RaspiPin.GPIO_01;
+            raspiPin = RaspiPin.GPIO_21;
         } else if (relayId == 2) {
-            raspiPin = RaspiPin.GPIO_04;
+            raspiPin = RaspiPin.GPIO_22;
         }
 
-        GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(raspiPin, "Light", PinState.HIGH);
-        pin.high();
+        GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(raspiPin, "Light", PinState.LOW);
+        pin.low();
         gpio.shutdown();
         gpio.unprovisionPin(pin);
         log.info("Light was started for {}", relayId);
@@ -48,12 +48,12 @@ public class TemperatureService {
         GpioController gpio = GpioFactory.getInstance();
         Pin raspiPin = null;
         if(relayId == 1) {
-            raspiPin = RaspiPin.GPIO_01;
+            raspiPin = RaspiPin.GPIO_21;
         } else if (relayId == 2) {
-            raspiPin = RaspiPin.GPIO_04;
+            raspiPin = RaspiPin.GPIO_22;
         }
-        GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(raspiPin, "Light", PinState.LOW);
-        pin.low();
+        GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(raspiPin, "Light", PinState.HIGH);
+        pin.high();
         gpio.shutdown();
         gpio.unprovisionPin(pin);
         log.info("Light was closed for {}", relayId);
@@ -99,10 +99,14 @@ public class TemperatureService {
         TemperatureDto temperature = new TemperatureDto();
         GpioUtil.enableNonPrivilegedAccess();
         GpioController gpio = GpioFactory.getInstance();
-        final GpioPinDigitalOutput myButton = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
-        final GpioPinDigitalOutput myButton2 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_04);
-        System.out.println("1"+myButton.getState());
-        System.out.println("2"+myButton2.getState());
+        final GpioPinDigitalOutput myButton = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_21);
+        final GpioPinDigitalOutput myButton2 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_22);
+
+
+        temperature.setOpenHappy(myButton.getState().isLow() ? "OPEN" : "CLOSED");
+        temperature.setOpenSnoopy(myButton2.getState().isLow() ? "OPEN" : "CLOSED");
+        
+
 
         W1Master master = new W1Master();
         for (TemperatureSensor device : master.getDevices(TemperatureSensor.class)) {

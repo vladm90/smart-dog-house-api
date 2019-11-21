@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Date;
 
 
 @Builder
@@ -13,6 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DateDto implements Serializable {
-    private String startDate;
-    private String endDate;
+    private Date startDate;
+    private Date endDate;
 }
