@@ -61,52 +61,49 @@ public class TemperatureService {
 
     public List<TemperatureDto> findAll() throws InterruptedException {
 
-        List<Temperature> list = new ArrayList<>();
-        List<TemperatureDto> list2 = new ArrayList<>();
-        temperatureDao.findAll().iterator().forEachRemaining(list::add);
+        List<Temperature> listTemp = new ArrayList<>();
+        List<TemperatureDto> listTempDto = new ArrayList<>();
+        temperatureDao.findAll().iterator().forEachRemaining(listTemp::add);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm");
-        list.forEach(f -> {
-            list2.add( TemperatureDto.builder()
+        listTemp.forEach(f -> {
+            listTempDto.add( TemperatureDto.builder()
                     .date(simpleDateFormat.format(f.getDate()))
                     .insideHappy(f.getInsideHappy())
                     .insideSnoopy(f.getInsideSnoopy())
                     .outside(f.getOutside())
                     .build());
         });
-        Collections.reverse(list2);
-        return list2;
+        Collections.reverse(listTempDto);
+        return listTempDto;
     }
 
     public List<TemperatureDto> getAllByFilters(DateDto dateDto) throws InterruptedException {
 
-        List<Temperature> list = new ArrayList<>();
-        List<TemperatureDto> list2 = new ArrayList<>();
-        temperatureDao.findAllByFilters(dateDto.getStartDate(), dateDto.getEndDate()).iterator().forEachRemaining(list::add);
+        List<Temperature> listTemp = new ArrayList<>();
+        List<TemperatureDto> listTempDto = new ArrayList<>();
+        temperatureDao.findAllByFilters(dateDto.getStartDate(), dateDto.getEndDate()).iterator().forEachRemaining(listTemp::add);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm");
-        list.forEach(f -> {
-            list2.add( TemperatureDto.builder()
+        listTemp.forEach(f -> {
+            listTempDto.add( TemperatureDto.builder()
                     .date(simpleDateFormat.format(f.getDate()))
                     .insideHappy(f.getInsideHappy())
                     .insideSnoopy(f.getInsideSnoopy())
                     .outside(f.getOutside())
                     .build());
         });
-        Collections.reverse(list2);
-        return list2;
+        Collections.reverse(listTempDto);
+        return listTempDto;
     }
 
-    public TemperatureDto getStats() throws InterruptedException {
+    public TemperatureDto getStats(){
         TemperatureDto temperature = new TemperatureDto();
         GpioUtil.enableNonPrivilegedAccess();
         GpioController gpio = GpioFactory.getInstance();
-        final GpioPinDigitalOutput myButton = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_21);
-        final GpioPinDigitalOutput myButton2 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_22);
+        final GpioPinDigitalOutput lightHappy = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_21);
+        final GpioPinDigitalOutput lightSnoopy = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_22);
 
-
-        temperature.setOpenHappy(myButton.getState().isLow() ? "OPEN" : "CLOSED");
-        temperature.setOpenSnoopy(myButton2.getState().isLow() ? "OPEN" : "CLOSED");
-        
-
+        temperature.setOpenHappy(lightHappy.getState().isLow() ? "OPEN" : "CLOSED");
+        temperature.setOpenSnoopy(lightSnoopy.getState().isLow() ? "OPEN" : "CLOSED");
 
         W1Master master = new W1Master();
         for (TemperatureSensor device : master.getDevices(TemperatureSensor.class)) {
@@ -122,30 +119,45 @@ public class TemperatureService {
 
         }
         gpio.shutdown();
-        gpio.unprovisionPin(myButton);
-        gpio.unprovisionPin(myButton2);
+        gpio.unprovisionPin(lightHappy);
+        gpio.unprovisionPin(lightSnoopy);
         return temperature;
     }
 
 
     public void scheduleTaskSaveTemperatures() {
-        Temperature temperature = new Temperature();
-        W1Master master = new W1Master();
-        for (TemperatureSensor device : master.getDevices(TemperatureSensor.class)) {
-            if (device.getName().equals("28-0416a17be5ff")) { //3m
-                temperature.setInsideSnoopy(device.getTemperature());
-            }
-            if (device.getName().equals("28-0516a1a5b9ff")) { //2m
-                temperature.setInsideHappy(device.getTemperature());
-            }
-            if (device.getName().equals("28-0416a15904ff")) { //1m
-                temperature.setOutside(device.getTemperature());
-            }
-
+        TemperatureDto temperature = getStats();
+        if (temperature.getInsideHappy() < 15){
+            //open relay
+            openRelay(1L);
+            //mark relay open
+            temperature.setOpenHappy("OPEN");
+        } else {
+            //close relay
+            closeRelay(1L);
+            //mark relay close
+            temperature.setOpenHappy("CLOSED");
         }
-        temperature.setOpenHappy(false);
-        temperature.setOpenSnoopy(false);
-        temperatureDao.save(temperature);
+
+        if (temperature.getInsideSnoopy() < 15){
+            //open relay
+            openRelay(2L);
+            //mark relay open
+            temperature.setOpenSnoopy("OPEN");
+        } else {
+            //close relay
+            closeRelay(2L);
+            //mark relay close
+            temperature.setOpenSnoopy("CLOSED");
+        }
+
+        temperatureDao.save(Temperature.builder()
+                .openHappy(temperature.getOpenHappy().equals("OPEN"))
+                .openHappy(temperature.getOpenSnoopy().equals("OPEN"))
+                .insideHappy(temperature.getInsideHappy())
+                .insideSnoopy(temperature.getInsideSnoopy())
+                .outside(temperature.getOutside())
+                .build());
         log.info("######Cron Finished ######");
     }
 
