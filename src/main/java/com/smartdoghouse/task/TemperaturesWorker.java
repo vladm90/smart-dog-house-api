@@ -17,7 +17,8 @@ public class TemperaturesWorker{
     @Autowired
     TemperatureService temperatureService;
 
-    @Scheduled(cron = "0 0/30 * * * *")
+  // @Scheduled(cron = "0 0/30 * * * *")
+    @Scheduled(cron = "0 0/5  * * * *")
     public void saveTemperatures() {
         log.info("######Cron Start ######");
         temperatureService.scheduleTaskSaveTemperatures();

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public class TemperatureService {
 
         List<Temperature> listTemp = new ArrayList<>();
         List<TemperatureDto> listTempDto = new ArrayList<>();
-        temperatureDao.findAll().iterator().forEachRemaining(listTemp::add);
+        temperatureDao.findTop1000ByOrderByDateDesc().iterator().forEachRemaining(listTemp::add);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm");
         listTemp.forEach(f -> {
             listTempDto.add( TemperatureDto.builder()
@@ -71,14 +72,15 @@ public class TemperatureService {
                     .insideHappy(f.getInsideHappy())
                     .insideSnoopy(f.getInsideSnoopy())
                     .outside(f.getOutside())
+                    .openHappy(f.getOpenHappy()? "OPEN" : "CLOSED")
+                    .openSnoopy(f.getOpenSnoopy()? "OPEN" : "CLOSED")
                     .build());
         });
-        Collections.reverse(listTempDto);
+        //Collections.reverse(listTempDto);
         return listTempDto;
     }
 
     public List<TemperatureDto> getAllByFilters(DateDto dateDto) throws InterruptedException {
-
         List<Temperature> listTemp = new ArrayList<>();
         List<TemperatureDto> listTempDto = new ArrayList<>();
         temperatureDao.findAllByFilters(dateDto.getStartDate(), dateDto.getEndDate()).iterator().forEachRemaining(listTemp::add);
@@ -89,6 +91,8 @@ public class TemperatureService {
                     .insideHappy(f.getInsideHappy())
                     .insideSnoopy(f.getInsideSnoopy())
                     .outside(f.getOutside())
+                    .openHappy(f.getOpenHappy()? "OPEN" : "CLOSED")
+                    .openSnoopy(f.getOpenSnoopy()? "OPEN" : "CLOSED")
                     .build());
         });
         Collections.reverse(listTempDto);
@@ -127,33 +131,29 @@ public class TemperatureService {
 
     public void scheduleTaskSaveTemperatures() {
         TemperatureDto temperature = getStats();
-        if (temperature.getInsideHappy() < 15){
-            //open relay
-            openRelay(1L);
-            //mark relay open
-            temperature.setOpenHappy("OPEN");
-        } else {
-            //close relay
-            closeRelay(1L);
-            //mark relay close
-            temperature.setOpenHappy("CLOSED");
-        }
+        Calendar rightNow = Calendar.getInstance();
+        int hour = rightNow.get(Calendar.HOUR_OF_DAY);
+        if(hour < 9 || hour > 18){
+            if (temperature.getInsideHappy() < 7){
+                openRelay(1L);
+                temperature.setOpenHappy("OPEN");
+            } else {
+                closeRelay(1L);
+                temperature.setOpenHappy("CLOSED");
+            }
 
-        if (temperature.getInsideSnoopy() < 15){
-            //open relay
-            openRelay(2L);
-            //mark relay open
-            temperature.setOpenSnoopy("OPEN");
-        } else {
-            //close relay
-            closeRelay(2L);
-            //mark relay close
-            temperature.setOpenSnoopy("CLOSED");
+            if (temperature.getInsideSnoopy() < 7){
+                openRelay(2L);
+                temperature.setOpenSnoopy("OPEN");
+            } else {
+                closeRelay(2L);
+                temperature.setOpenSnoopy("CLOSED");
+            }
         }
 
         temperatureDao.save(Temperature.builder()
                 .openHappy(temperature.getOpenHappy().equals("OPEN"))
-                .openHappy(temperature.getOpenSnoopy().equals("OPEN"))
+                .openSnoopy(temperature.getOpenSnoopy().equals("OPEN"))
                 .insideHappy(temperature.getInsideHappy())
                 .insideSnoopy(temperature.getInsideSnoopy())
                 .outside(temperature.getOutside())

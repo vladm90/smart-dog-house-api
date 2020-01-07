@@ -17,4 +17,7 @@ public interface TemperatureDao extends CrudRepository<Temperature, Integer> {
 
     @Query("Select t from Temperature t where t.date > ?1 and t.date <= ?2")
     List<Temperature> findAllByFilters(Date startDate, Date endDate);
+
+    //@Query("Select t from Temperature t where rownum <= 1000 order by t.date desc")
+    List<Temperature> findTop1000ByOrderByDateDesc();
 }
