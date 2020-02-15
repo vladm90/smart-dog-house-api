@@ -1,13 +1,23 @@
-# Spring Boot REST
+sudo apt-get update
+sudo apt-get upgrade
+wget https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb
+sudo dpkg -i teamviewer-host_armhf.deb
+sudo apt --fix-broken instally
 
-## Similar Post
 
-You may be interested in other spring security articles:
+https://www.jetbrains.com/idea/download/
+comunity >run /bin/idea.sh
 
-[Spring Boot Security OAUTH2 Example](http://www.devglan.com/spring-security/spring-boot-security-oauth2-example).
+sudo apt-get install chromium-browser –yes
 
-[Spring Boot Security Basic Authentication](http://www.devglan.com/spring-security/spring-boot-security-rest-basic-authentication)
+sudo apt-get install maven
 
-[Spring Boot Security Hibernate Login](http://www.devglan.com/spring-security/spring-boot-security-hibernate-login-example)
-
-[Securing Actuator Endpoints with Spring Security](http://www.devglan.com/spring-security/securing-spring-boot-actuator-endpoints-with-spring-security)
+sudo apt install postgresql libpq-dev postgresql-client postgresql-client-common -y
+sudo su postgres
+createuser pi -P --interactive
+psql
+create database doghouse;
+psql doghouse
+creat tables;
+ALTER USER postgres PASSWORD 'myPassword';
+sudo apt install pgadmin3
