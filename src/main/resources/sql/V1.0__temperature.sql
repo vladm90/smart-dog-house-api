@@ -3,7 +3,7 @@
 --sequences
 CREATE SEQUENCE IF NOT EXISTS temperatures_seq start with 1 cache 50 increment 1 cycle;
 
---pg_history_change table
+
 CREATE TABLE IF NOT EXISTS temperatures
 (
     t_id bigint NOT NULL DEFAULT nextval('temperatures_seq'),
