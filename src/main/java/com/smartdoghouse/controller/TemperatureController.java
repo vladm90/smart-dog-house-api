@@ -41,6 +41,12 @@ public class TemperatureController {
 
     }
 
+    @GetMapping("/images")
+    public void getImages() throws InterruptedException {
+        temperatureService.getImages();
+
+    }
+
 
 
 }

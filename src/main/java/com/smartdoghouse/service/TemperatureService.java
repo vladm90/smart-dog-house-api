@@ -1,5 +1,13 @@
 package com.smartdoghouse.service;
 
+import org.bytedeco.javacv.*;
+import org.bytedeco.opencv.opencv_core.IplImage;
+
+import java.io.File;
+
+import static java.util.Objects.isNull;
+import static org.bytedeco.opencv.global.opencv_core.cvFlip;
+import static org.bytedeco.opencv.helper.opencv_imgcodecs.cvSaveImage;
 import com.smartdoghouse.dto.DateDto;
 import com.smartdoghouse.dto.TemperatureDto;
 import com.smartdoghouse.repository.TemperatureDao;
@@ -12,7 +20,12 @@ import com.pi4j.io.w1.W1Master;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -64,7 +77,7 @@ public class TemperatureService {
 
         List<Temperature> listTemp = new ArrayList<>();
         List<TemperatureDto> listTempDto = new ArrayList<>();
-        temperatureDao.findTop1000ByOrderByDateDesc().iterator().forEachRemaining(listTemp::add);
+        temperatureDao.findTop50ByOrderByDateDesc().iterator().forEachRemaining(listTemp::add);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm");
         listTemp.forEach(f -> {
             listTempDto.add( TemperatureDto.builder()
@@ -111,10 +124,10 @@ public class TemperatureService {
 
         W1Master master = new W1Master();
         for (TemperatureSensor device : master.getDevices(TemperatureSensor.class)) {
-            if (device.getName().equals("28-0416a17be5ff")) { //3m
+            if (device.getName().equals("28-0300a279cbc1")) { //3m
                 temperature.setInsideSnoopy(device.getTemperature());
             }
-            if (device.getName().equals("28-0516a1a5b9ff")) { //2m
+            if (device.getName().equals("28-0300a279e21e")) { //2m
                 temperature.setInsideHappy(device.getTemperature());
             }
             if (device.getName().equals("28-0416a15904ff")) { //1m
@@ -122,19 +135,42 @@ public class TemperatureService {
             }
 
         }
+        if(isNull(temperature.getInsideSnoopy())){
+            temperature.setInsideSnoopy(0D);
+        }
         gpio.shutdown();
         gpio.unprovisionPin(lightHappy);
         gpio.unprovisionPin(lightSnoopy);
         return temperature;
     }
 
+    public void getImages() {
+        //get image happy
+        FrameGrabber grabber = new OpenCVFrameGrabber(0); // 1 for next camera
+        OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
+        IplImage img;
+        try {
+            grabber.start();
+            Frame frame = grabber.grab();
+            img = converter.convert(frame);
+
+            //the grabbed frame will be flipped, re-flip to make it right
+            cvFlip(img, img, -1);// l-r = 90_degrees_steps_anti_clockwise
+
+            cvSaveImage("/home/pi/work/smart-dog-house-frontend/src/resources/imageHappy.jpg", img);
+            grabber.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public void scheduleTaskSaveTemperatures() {
         TemperatureDto temperature = getStats();
         Calendar rightNow = Calendar.getInstance();
         int hour = rightNow.get(Calendar.HOUR_OF_DAY);
-        if(hour < 9 || hour > 18){
-            if (temperature.getInsideHappy() < 7){
+        if(hour < 9 || hour > 16){
+            if (temperature.getInsideHappy() > 7 && temperature.getInsideHappy() < 12){
                 openRelay(1L);
                 temperature.setOpenHappy("OPEN");
             } else {
@@ -142,13 +178,18 @@ public class TemperatureService {
                 temperature.setOpenHappy("CLOSED");
             }
 
-            if (temperature.getInsideSnoopy() < 7){
+            if (temperature.getInsideSnoopy() > 7 && temperature.getInsideSnoopy() < 12){
                 openRelay(2L);
                 temperature.setOpenSnoopy("OPEN");
             } else {
                 closeRelay(2L);
                 temperature.setOpenSnoopy("CLOSED");
             }
+        } else {
+            closeRelay(1L);
+            temperature.setOpenHappy("CLOSED");
+            closeRelay(2L);
+            temperature.setOpenSnoopy("CLOSED");
         }
 
         temperatureDao.save(Temperature.builder()
